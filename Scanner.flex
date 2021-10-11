@@ -6,8 +6,6 @@
 %standalone
 %unicode
 
-
-
 LineTerminator = \r|\n|\r\n
 WhiteSpace = {LineTerminator} | [\t\f]
 InputCharacter = [^\r\n]
@@ -40,35 +38,29 @@ stringLiteral = \"[^]\"
 %%
 
 <YYINITIAL> {
-    {double} {System.out.println("T_DOUBLELITERAL " + yytext()) ;}
+    {items}       {System.out.println(yytext());}
 
+    {command}     {System.out.println(yytext());}
 
-    {items}    {System.out.println(yytext());}
+    {boolean}     {System.out.println("T_BOOLEANLITERAL " + yytext());}
 
-    {command}   {System.out.println(yytext());}
+    {integer}     {System.out.println("T_INTLITERAL " + yytext()) ;}
 
-    {boolean} {System.out.println("T_BOOLEANLITERAL " + yytext());}
+    {double}      {System.out.println("T_DOUBLELITERAL " + yytext()) ;}
 
-     {hex} {System.out.println("T_INTLITERAL " + yytext()) ;}
+    {identifier}  {System.out.println("T_ID "+ yytext());}
 
-      [a-zA-Z0-9][a-zA-Z0-9_]* {System.out.println("T_ID "+ yytext());}
+    {WhiteSpace}  { /* ignore */ }
 
-      [0-9][0-9_]* {System.out.println("T_INTLITERAL " + yytext());}
-
-      \" { yybegin(A);System.out.print("T_STRINGLITERAL " + "\""  ) ; }
-
-
-    {WhiteSpace} { /* ignore */ }
-    {Comment}    { /* ignore */ }
+    {Comment}     { /* ignore */ }
 }
-
+    \"            { yybegin(A);System.out.print("T_STRINGLITERAL " + "\"" ); }
 
 
  <string> {
-            [a-zA-Z0-9][a-zA-Z0-9_]* { System.out.print(  yytext() );}
+            [a-zA-Z0-9]+ { System.out.print(  yytext() );}
 
-              \" { yybegin(YYINITIAL); System.out.println("\" "); }
-
+            \" { yybegin(YYINITIAL); System.out.println("\" "); }
 
             }
 
