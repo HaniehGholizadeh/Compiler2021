@@ -2,14 +2,17 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
+
 public class Main {
     public static void main(String[] args) {
+
+
         if (args.length < 4) {
             System.out.println("Usage: java Main -i <input> -o <output>");
             return;
         }
-        String inputFileName = null;
-        String outputFileName = null;
+        String inputFileName = "tests\t01-id.in";
+        String outputFileName = "test\t01-id.out";
         if (args != null) {
             for (int i = 0; i < args.length; i++) {
                 if (args[i].equals("-i")) {
@@ -25,20 +28,9 @@ public class Main {
 
         // Read the input file and write to the output file.
 
-        String[] lines = {
-                "class",
-                "T_ID Program",
-                "{",
-                "void",
-                "T_ID main",
-                "(",
-                ")",
-                "{",
-                "}",
-                "}"
-        };
 
-        writeContentToFile(outputPath, lines);
+
+        writeContentToFile(outputPath, args);
     }
 
     private static boolean createFile(String path) {
