@@ -17,9 +17,6 @@ import java.util.Scanner;
     public class define {
         public static void main(String[] args) throws Exception {
 
-
-
-
             File file = new File("C:\\Users\\Iran\\Desktop\\example.txt");
             Scanner scan = new Scanner(file);
             String s = null;
@@ -31,6 +28,8 @@ import java.util.Scanner;
                 if (s.equals("define")) {
                     list.add(scan.next());
                     list.add(scan.next());
+
+
 
                 }
             }
@@ -48,16 +47,16 @@ import java.util.Scanner;
 
             String filePath = "C:\\Users\\Iran\\Desktop\\example.txt";
             String result = fileToString(filePath);
-            System.out.println("Contents of the file: "+result);
+
             //Replacing the word with desired one
-            result = result.replaceAll("define", "");
+            result = result.replaceAll("define\\s\\S*\\s\\S*", "");
+
 
             //Rewriting the contents of the file
             PrintWriter writer = new PrintWriter(new File(filePath));
             writer.append(result);
             writer.flush();
-            System.out.println("Contents of the file after replacing the desired word:");
-            System.out.println(fileToString(filePath));
+
 
         }
 
