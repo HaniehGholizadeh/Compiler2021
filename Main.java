@@ -1,54 +1,33 @@
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-
+import java.io.*;
+import java.util.Scanner;
 
 public class Main {
-    public static void main(String[] args) {
-
-
-        if (args.length < 4) {
-            System.out.println("Usage: java Main -i <input> -o <output>");
-            return;
-        }
-        String inputFileName = "tests\t01-id.in";
-        String outputFileName = "test\t01-id.out";
-        if (args != null) {
-            for (int i = 0; i < args.length; i++) {
-                if (args[i].equals("-i")) {
-                    inputFileName = args[i + 1];
-                }
-                if (args[i].equals("-o")) {
-                    outputFileName = args[i + 1];
-                }
+    public static void main(String[] args) throws FileNotFoundException {
+        String inFile;
+        Lexer lexer;
+        parser parser;
+        for (int i = 1; i <= 9; i++) {
+            inFile = "C:\\Users\\Asus\\IdeaProjects\\Compiler2021\\tests\\t0" + i + ".in";
+            lexer = new Lexer(new FileReader(inFile));
+            parser = new parser(lexer);
+            try {
+                parser.parse();
+                System.out.println(i + " Ok");
+            } catch (Exception e) {
+                System.out.println(i + " Syntax Error");
             }
         }
-        String outputPath = "out/" + outputFileName;
-        createFile(outputPath);
 
-        // Read the input file and write to the output file.
-
-
-
-        writeContentToFile(outputPath, args);
-    }
-
-    private static boolean createFile(String path) {
-        File file = new File(path);
-        try {
-            return file.createNewFile();
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    private static void writeContentToFile(String path, String[] lines) {
-        try (FileWriter writer = new FileWriter(new File(path))) {
-            String content = String.join("\n", lines);
-            writer.write(content);
-        } catch (IOException e) {
-            e.printStackTrace();
+        for (int i = 0; i <= 2; i++) {
+            inFile = "F:\\uni\\Sem 5\\Compiler\\Parser\\src\\test\\t1" + i + ".in";
+            lexer = new Lexer(new FileReader(inFile));
+            parser = new parser(lexer);
+            try {
+                parser.parse();
+                System.out.println("1" + i + " Ok");
+            } catch (Exception e) {
+                System.out.println("1" + i + " Syntax Error");
+            }
         }
     }
 }
