@@ -6,5 +6,4 @@ public interface Type {
     String getInitialValue();
     int getAlign();
     PrimitType getPrimitive();
-
 }

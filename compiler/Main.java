@@ -1,4 +1,8 @@
 package compiler;
+import compiler.Compiler;
+
+import java.io.File;
+
 import java.io.*;
 
 public class Main {
@@ -26,7 +30,7 @@ public class Main {
             }
 
 
-            Compiler.compile(read, writer);
+            Compiler.compile(inputFile, outputFile);
 
 
             assert writer != null;

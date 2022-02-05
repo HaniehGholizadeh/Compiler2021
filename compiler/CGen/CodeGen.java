@@ -17,6 +17,11 @@ public class CodeGen {
     private static final int USER_INPUT_SIZE = 20;
     public static String DS = ".data\n";
     public static String TS = ".text\n";
+    private static int LoopStmtCounter = 0;
+    private static int ConditionStmtCounter = 0;
+    private static int StringCounter = 0;
+    private static int ArgumentCounter = 0;
+
     private static int readLineCounter = 0;
 
     static {
@@ -71,15 +76,15 @@ public class CodeGen {
             cgenUnaryMinus(node);
         }
         else if (
-                  node.getNodeType() == NodeType.ADD
-                ||node.getNodeType() == NodeType.SUB
-                ||node.getNodeType() == NodeType.MUL
-                ||node.getNodeType() == NodeType.DIV
-                ||node.getNodeType() == NodeType.MOD) 
+                node.getNodeType() == NodeType.ADD
+                        ||node.getNodeType() == NodeType.SUB
+                        ||node.getNodeType() == NodeType.MUL
+                        ||node.getNodeType() == NodeType.DIV
+                        ||node.getNodeType() == NodeType.MOD)
         {
-             cgenArithmeticCalculation(node);
+            cgenArithmeticCalculation(node);
         }
-        
+
         else if (node.getNodeType() == NodeType.PRINT_STM) {
             cgenPrint(node);
         }
@@ -111,25 +116,25 @@ public class CodeGen {
             cgenContinue(node);
         }
         else if (node.getNodeType() == NodeType.EQUAL
-                ||node.getNodeType() == NodeType.NOT_EQUAL) 
+                ||node.getNodeType() == NodeType.NOT_EQUAL)
         {
             cgenEqNeq(node);
         }
         else if (node.getNodeType() == NodeType.GREATER_THAN
                 ||node.getNodeType() == NodeType.G_T_OR_EQ
                 ||node.getNodeType() == NodeType.LESS_THAN
-                ||node.getNodeType() == NodeType.L_T_OR_EQ) 
+                ||node.getNodeType() == NodeType.L_T_OR_EQ)
         {
             cgenCompare(node);
         }
         else if (node.getNodeType() == NodeType.AND_LOGIC
                 ||node.getNodeType() == NodeType.OR_LOGIC
-                ||node.getNodeType() == NodeType.NOT_LOGIC) 
+                ||node.getNodeType() == NodeType.NOT_LOGIC)
         {
             cgenBooleanCalculation(node);
         }
         else
-             cgenAllChildren(node);
+            cgenAllChildren(node);
     }
 
     private static void cgenStart(Node node) throws Exception {
@@ -209,7 +214,7 @@ public class CodeGen {
     private static void cgenIdentifier(Node node) throws Exception {
         IDNode IDNode = (IDNode) node;
         String entry = IDNode.getv();
-        if (node.getParent().getNodeType().equals(NodeType.FUNCTION_CALL)) { //TODO for double identifiers
+        if (node.getParent().getNodeType().equals(NodeType.FUNCTION_CALL)) {
             cgenAllChildren(node);
             TS += "\taddi\t$sp, $sp, -4\n";
             TS += "\tsw\t$ra, 0($sp)\n";
@@ -253,7 +258,7 @@ public class CodeGen {
         }
 
         if ((Exp.getres() != null) && Exp.getres().equals("\"ReadLine()\"")) {
-            String stringLabel = "readLine_number" + (readLineCounter - 1);   // because we want  read line that we ++ it
+            String stringLabel = "readLine_number" + (readLineCounter - 1);
             TS += "\tla\t$v1, " + stringLabel + '\n';
         }
 
@@ -300,11 +305,11 @@ public class CodeGen {
 
         if (node.getParent().getNodeType().equals(NodeType.ARGUMENT)) {
             DSCP dscp = new DSCP(typePrimitive, IDNode);
-            dscp.setArgumentTrue(SymbolTable.getCurrentScope().getArgumentCounter());
+            dscp.setArgumentTrue(getArgumentCounter());
             spaghettiStack.addEntry(IDNode.getv(), dscp);
 
 
-            vTable.getFunction(node.getParent().getParent().getParent().getChild(1).toString()).addArgument((PrimitType) typePrimitive);
+            vTable.getFunction(node.getParent().getParent().getParent().getChild(1).toString()).addArgument((compiler.AST.PrimitType) typePrimitive);
         } else {
             DSCP dscp = new DSCP(typePrimitive, IDNode);
             spaghettiStack.addEntry(IDNode.getv(), dscp);
@@ -344,23 +349,23 @@ public class CodeGen {
         DSCP dscp = new DSCP(type, null);
 
         if (type.equals(PrimitType.INT)) {
-            
-                if (node.getNodeType() == NodeType.ADD) {
-                    TS += "\tadd\t$v1, $s0, $s2\n";
-                }
-                else if (node.getNodeType() == NodeType.SUB) {
-                    TS += "\tsub\t$v1, $s0, $s2\n";
-                }
-                else if (node.getNodeType() == NodeType.MUL) {
-                    TS += "\tmul\t$v1, $s0, $s2\n";
-                }
-                else if (node.getNodeType() == NodeType.DIV) {
-                    TS += "\tdiv\t$v1, $s0, $s2\n";
-                }
-                else if (node.getNodeType() == NodeType.MOD) {
-                    TS += "\trem\t$v1, $s0, $s2\n";
-                }
-        } 
+
+            if (node.getNodeType() == NodeType.ADD) {
+                TS += "\tadd\t$v1, $s0, $s2\n";
+            }
+            else if (node.getNodeType() == NodeType.SUB) {
+                TS += "\tsub\t$v1, $s0, $s2\n";
+            }
+            else if (node.getNodeType() == NodeType.MUL) {
+                TS += "\tmul\t$v1, $s0, $s2\n";
+            }
+            else if (node.getNodeType() == NodeType.DIV) {
+                TS += "\tdiv\t$v1, $s0, $s2\n";
+            }
+            else if (node.getNodeType() == NodeType.MOD) {
+                TS += "\trem\t$v1, $s0, $s2\n";
+            }
+        }
         else if (type.equals(PrimitType.DOUBLE)) {
 
         } else if (type.equals(PrimitType.STRING)) {
@@ -374,6 +379,7 @@ public class CodeGen {
             SymbolTable.getCurrentScope().addStringLiteralCounter();
         }
         popRegistersS();
+
         node.setDSCP(dscp);
         Exp parent = (Exp) node.getParent();
         parent.setIsID();
@@ -387,26 +393,26 @@ public class CodeGen {
                 TS += "\tli\t$v0, 1\n";
                 TS += "\tadd\t$a0, $v1, $zero\n";
                 TS += "\tsyscall\n";
-                
+
             }
             else if(child.getChild(0).getDSCP().getType().getPrimitive() == PrimitType.DOUBLE){
                 TS += "\tli\t$v0, 3\n";
                 TS += "\tadd.d\t$f12, $f10, $f0\n";
                 TS += "\tsyscall\n";
-                
+
             }
             else if(child.getChild(0).getDSCP().getType().getPrimitive() == PrimitType.BOOL){
                 TS += "\tmove\t$a0, $v1\n";
                 TS += "\tsw\t$ra, 0($sp)\n";
                 TS += "\tjal\tPrintBool\n";
                 TS += "\tlw\t$ra, 0($sp)\n";
-                
+
             }
             else if(child.getChild(0).getDSCP().getType().getPrimitive() == PrimitType.STRING){
                 TS += "\tli\t$v0, 4\n";
                 TS += "\tmove\t$a0, $v1\n";
                 TS += "\tsyscall\n";
-                
+
             }
         }
 
@@ -415,11 +421,13 @@ public class CodeGen {
                 + "\tsyscall\n";
 
 
-        cgen(node.getChild(1));
+        if (node.getChildren().size() == 2){
+            cgen(node.getChild(1));
+        }
     }
 
     private static void cgenArgument(Node node) throws Exception {
-        SymbolTable.getCurrentScope().addArgumentCounter();
+        addArgumentCounter();
         cgenVariableDecl(node.getChild(0));
     }
 
@@ -479,12 +487,12 @@ public class CodeGen {
     }
 
     private static void cgenIfStatement(Node node) throws Exception {
-        SymbolTable.getCurrentScope().addConditionStmtCounter();
+        addConditionStmtCounter();
 
-        String entry = "IfStmt_" + SymbolTable.getCurrentScope().getConditionStmtCounter();
+        String entry = "IfStmt_" + getConditionStmtCounter();
         String labelName = spaghettiStack + "_" + entry;
 
-        String entryElse = "ElseStmt_" + SymbolTable.getCurrentScope().getConditionStmtCounter();    // Scope name for Else
+        String entryElse = "ElseStmt_" + getConditionStmtCounter();    // Scope name for Else
         String labelNameElse = spaghettiStack + "_" + entryElse;
 
         spaghettiStack.enterScope(entry, BlockType.CONDITION, true);
@@ -506,20 +514,22 @@ public class CodeGen {
         TS += labelName + ":\n";
 
         if (node.getChildren().size() == 3) {
+            addConditionStmtCounter();
             cgen(node.getChild(2));
         } else {
             spaghettiStack.enterScope(entryElse, BlockType.CONDITION, true);
             cgen(node.getChild(2));
             TS += labelNameElse + ":\n";
+            addConditionStmtCounter();
             cgen(node.getChild(3));
         }
 
     }
 
     private static void cgenWhileStatement(Node node) throws Exception {
-        SymbolTable.getCurrentScope().addLoopStmtCounter();
+        addLoopStmtCounter();
 
-        String entry = "LoopStmt_" + SymbolTable.getCurrentScope().getLoopStmtCounter();
+        String entry = "LoopStmt_" + getLoopStmtCounter();
         String labelNameFirst = spaghettiStack + "_" + entry + "_start";
         String labelNameUpdate = spaghettiStack + "_" + entry + "_update";
         String labelNameEnd = spaghettiStack + "_" + entry + "_end";
@@ -544,8 +554,8 @@ public class CodeGen {
     }
 
     private static void cgenForStatement(Node node) throws Exception {
-        SymbolTable.getCurrentScope().addLoopStmtCounter();
-        String entry = "LoopStmt_" + SymbolTable.getCurrentScope().getLoopStmtCounter();
+        addLoopStmtCounter();
+        String entry = "LoopStmt_" + getLoopStmtCounter();
         String labelNameFirst = spaghettiStack + "_" + entry + "_start";
         String labelNameUpdate = spaghettiStack + "_" + entry + "_update";
         String labelNameEnd = spaghettiStack + "_" + entry + "_end";
@@ -582,7 +592,7 @@ public class CodeGen {
             scopeCrawler = scopeCrawler.getParent();
         }
 
-        String entry = "LoopStmt_" + scopeCrawler.getParent().getLoopStmtCounter();
+        String entry = "LoopStmt_" + getLoopStmtCounter();
         String labelNameEnd = scopeCrawler.getParent() + "_" + entry + "_end";
         TS += "\tb\t" + labelNameEnd + "\n";
 
@@ -604,7 +614,7 @@ public class CodeGen {
             scopeCrawler = scopeCrawler.getParent();
         }
 
-        String entry = "LoopStmt_" + scopeCrawler.getParent().getLoopStmtCounter();
+        String entry = "LoopStmt_" + getLoopStmtCounter();
         String labelNameEnd = scopeCrawler.getParent() + "_" + entry + "_update";
         TS += "\tb\t" + labelNameEnd + "\n";
         if (node.getChildren().size() != 0)
@@ -724,8 +734,8 @@ public class CodeGen {
             TS += "\tneg\t$v1, $s0\n";
             TS += "\tadd\t$v1, $v1, 1\n";
         }
-            
-    
+
+
 
         popRegistersS();
 
@@ -787,7 +797,7 @@ public class CodeGen {
 
     public static void compile(RootNode root) throws Exception {
         cgen(root);
-        FileWriter out = new FileWriter("tests/out.asm");
+        FileWriter out = new FileWriter("C:\\Users\\Asus\\IdeaProjects\\Compiler2021\\compiler\\tests\\out.asm");
         out.write(DS + TS);
         out.close();
     }
@@ -805,4 +815,37 @@ public class CodeGen {
     public static String gettextSegment() {
         return TS;
     }
+
+    private static int getLoopStmtCounter() {
+        return LoopStmtCounter;
+    }
+
+    private static void addLoopStmtCounter() {
+        LoopStmtCounter++;
+    }
+
+    private static int getConditionStmtCounter() {
+        return ConditionStmtCounter;
+    }
+
+    private static void addConditionStmtCounter() {
+        ConditionStmtCounter++;
+    }
+
+    private static int getStringLiteralCounter() {
+        return StringCounter;
+    }
+
+    private static void addStringLiteralCounter() {
+        StringCounter++;
+    }
+
+    private static int getArgumentCounter() {
+        return ArgumentCounter;
+    }
+
+    private static void addArgumentCounter() {
+        ArgumentCounter++;
+    }
+
 }
